@@ -11,8 +11,6 @@ public class Frame extends JPanel implements Runnable {
 	private JFrame frame = null;
 	private Thread thread = null;
 	
-	private EntityManager entityManager = null;
-	
 	public Frame() {
 		
 		this.setPreferredSize(new Dimension(640, 480));
@@ -21,7 +19,8 @@ public class Frame extends JPanel implements Runnable {
 		frame.setTitle("Game Of Live");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
-		frame.pack();		
+		frame.pack();	
+		frame.setResizable(false);	
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
@@ -32,16 +31,12 @@ public class Frame extends JPanel implements Runnable {
 	}
 	
 	private void initObjects() {
-		entityManager = new EntityManager(640, 480, 15, 15);
 	}
 	
 	private void updateObjects() {
-		entityManager.update();
 	}
 	
 	private void drawObjects(Graphics g) {
-		entityManager.drawLines(g);
-		entityManager.drawEntities(g);
 	}
 	
 	@Override
