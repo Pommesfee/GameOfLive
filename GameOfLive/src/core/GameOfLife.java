@@ -4,10 +4,21 @@ import javax.swing.JPanel;
 
 public class GameOfLife {
 
-	public static void main(String[] args) {
-		
-		JPanel frame = new Frame();
-		
-	}
+	/*
+	 *  Todo List:
+	 *  
+	 * 	Add User Panel (tileCount Chooser)
+	 * 	Add support for resizeability
+	 * 	Clean up code and optimize
+	 * 	Add documentation
+	 * 
+	 */
 	
+	
+	public static void main(String[] args) {
+
+		@SuppressWarnings("unused")
+		JPanel frame = new Frame();
+	}
+
 }
