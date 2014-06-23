@@ -7,6 +7,7 @@ public class GameOfLife {
 	/*
 	 *  Todo List:
 	 *  
+	 *  Config File (Color Dead/Alive)
 	 * 	Add User Panel (tileCount Chooser)
 	 * 	Add support for resizeability
 	 * 	Clean up code and optimize

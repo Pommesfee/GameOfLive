@@ -2,7 +2,7 @@ package core;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class EntityManager {
 
@@ -15,7 +15,7 @@ public class EntityManager {
 	private int entityWidth;
 	private int entityHeight;
 
-	private LinkedList<Entity> entities = new LinkedList<Entity>();
+	private ArrayList<Entity> entities = new ArrayList<Entity>();
 
 	public EntityManager(int frameWidth, int frameHeight, int entityCountX,
 			int entityCountY) {
@@ -79,8 +79,13 @@ public class EntityManager {
 			Entity e = entities.get(i);
 			
 			if (e.isMarked()) {	
-				e.setAlive(true);
-				e.setMarked(false);
+				if (!e.isAlive()) {
+					e.setAlive(true);
+					e.setMarked(false);
+				} else {
+					e.setAlive(false);
+					e.setMarked(false);
+				}
 			}
 		}
 	}

@@ -1,28 +1,35 @@
 package core;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Frame extends JPanel implements Runnable, KeyListener, MouseListener{
+public class Frame extends JPanel implements Runnable, KeyListener,
+		MouseListener {
+
+	private static final long serialVersionUID = 547885688509882231L;
 
 	private JFrame frame = null;
 	private Thread thread = null;
 
 	private EntityManager entityManager = null;
-	
+
 	private boolean paused = false;
+	
+	private long lastTime;
+	private long thisTime;
+	private double timeSinceLastFrame;
 
 	public Frame() {
 
-		this.setPreferredSize(new Dimension(640, 480));
+		this.setPreferredSize(new Dimension(900, 900));
 
 		frame = new JFrame();
 		frame.setTitle("Game Of Live");
@@ -36,12 +43,12 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 		frame.setVisible(true);
 
 		initObjects();
-		
+
 		startGame();
 	}
 
 	private void initObjects() {
-		entityManager = new EntityManager(640, 480, 16, 16);
+		entityManager = new EntityManager(900, 900, 50, 50);
 	}
 
 	private void updateObjects() {
@@ -57,29 +64,32 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 		drawObjects(g);
 	}
 
+
 	private void startGame() {
 		thread = new Thread(this, "GameOfLife");
 		thread.start();
 	}
-	
+
 	@Override
 	public void run() {
 		
 		setPaused(true);
-		
+		lastTime = System.currentTimeMillis();
+
 		while (true) {
-			try {
-				Thread.sleep(375);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			
+			thisTime = System.currentTimeMillis();
+			timeSinceLastFrame = (thisTime - lastTime);
+
 			repaint();
 			
-			entityManager.updateMarkedEntities();
-			
-			if (!isPaused()) {
-				updateObjects();
+			if (timeSinceLastFrame >= 50) {
+				if (!isPaused()) {
+					updateObjects();
+				}
+				lastTime = thisTime;
+			} else {
+				entityManager.updateMarkedEntities();
 			}
 		}
 	}
@@ -91,22 +101,25 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 	private void setPaused(boolean paused) {
 		this.paused = paused;
 	}
-	
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			setPaused(!isPaused());
 		}
+		if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+			entityManager.reset();
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 
 	@Override
@@ -118,22 +131,22 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		
+
 	}
 
 }
