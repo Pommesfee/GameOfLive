@@ -3,6 +3,8 @@ package core;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -12,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Frame extends JPanel implements Runnable, KeyListener,
-		MouseListener {
+		MouseListener, ComponentListener {
 
 	private static final long serialVersionUID = 547885688509882231L;
 
@@ -34,11 +36,13 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 		frame = new JFrame();
 		frame.setTitle("Game Of Live");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(this);
+		frame.setContentPane(this);
+		this.setBackground(Color.GREEN);
 		frame.pack();
 		frame.addKeyListener(this);
 		frame.addMouseListener(this);
-		frame.setResizable(false);
+		frame.addComponentListener(this);
+		frame.setResizable(true);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 
@@ -61,6 +65,7 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 
 	@Override
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		drawObjects(g);
 	}
 
@@ -147,6 +152,29 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 	@Override
 	public void mouseReleased(MouseEvent e) {
 
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		entityManager.resize(getWidth(), getHeight());
+	}
+
+	@Override
+	public void componentShown(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

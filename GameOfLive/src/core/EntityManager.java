@@ -168,4 +168,10 @@ public class EntityManager {
 	private void setEntityHeight(int entityHeight) {
 		this.entityHeight = entityHeight;
 	}
+
+	public void resize(int width, int height) {
+		setFrameWidth(width);
+		setFrameHeight(height);
+		calculateEntitySize();
+	}
 }
