@@ -1,6 +1,6 @@
 package core;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
@@ -13,34 +13,55 @@ import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Frame extends JPanel implements Runnable, KeyListener,
-		MouseListener, ComponentListener {
+import entity.EntityManager;
 
-	private static final long serialVersionUID = 547885688509882231L;
+@SuppressWarnings("serial")
+public class Frame extends JPanel implements Runnable, KeyListener, MouseListener, ComponentListener {
 
 	private JFrame frame = null;
 	private Thread thread = null;
-
-	private EntityManager entityManager = null;
-
-	private boolean paused = false;
 	
+	private String title;
+	private final String threadTitle = "GameOfLive";
+
+	private int frameWidth;
+	private int frameHeight;
+	
+	private boolean paused = false;
+
 	private long lastTime;
 	private long thisTime;
 	private double timeSinceLastFrame;
 
-	public Frame() {
+	private long lastUpdate;
+	private long timeSinceLastUpdate;
+	private int updateTime;
+	
+	private EntityManager entityManager = null;
+	private int entityCountX;
+	private int entityCountY;
 
-		this.setPreferredSize(new Dimension(900, 900));
+	public Frame(int width, int height, String title, int tileCountX, int tileCountY, int updateTime) {
+
+		setFrameWidth(width);
+		setFrameHeight(height);
+		setTitle(title);
+		
+		setTileCountX(tileCountX);
+		setTileCountY(tileCountY);
+		
+		setUpdateTime(updateTime);
+		
+		this.setPreferredSize(new Dimension(getFrameWidth(), getFrameHeight()));
 
 		frame = new JFrame();
-		frame.setTitle("Game Of Live");
+		frame.setTitle(getTitle());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(this);
-		this.setBackground(Color.GREEN);
+		frame.getContentPane().setLayout(new BorderLayout());
+		frame.getContentPane().add(this, BorderLayout.CENTER);
 		frame.pack();
 		frame.addKeyListener(this);
-		frame.addMouseListener(this);
+		this.addMouseListener(this);
 		frame.addComponentListener(this);
 		frame.setResizable(true);
 		frame.setLocationRelativeTo(null);
@@ -52,15 +73,16 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 	}
 
 	private void initObjects() {
-		entityManager = new EntityManager(900, 900, 50, 50);
+		setEntityManager(new EntityManager(getFrameWidth(), getFrameHeight(),
+				getTileCountX(), getTileCountX()));
 	}
 
 	private void updateObjects() {
-		entityManager.update();
+		getEntityManager().update();
 	}
 
 	private void drawObjects(Graphics g) {
-		entityManager.drawEntitys(g);
+		getEntityManager().drawEntitys(g);
 	}
 
 	@Override
@@ -69,36 +91,44 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 		drawObjects(g);
 	}
 
-
 	private void startGame() {
-		thread = new Thread(this, "GameOfLife");
-		thread.start();
+		setThread(new Thread(this, getThreadTitle()));
+		getThread().start();
 	}
 
 	@Override
 	public void run() {
-		
+
 		setPaused(true);
 		lastTime = System.currentTimeMillis();
+		lastUpdate = System.currentTimeMillis();
 
 		while (true) {
-			
+
 			thisTime = System.currentTimeMillis();
 			timeSinceLastFrame = (thisTime - lastTime);
 
-			repaint();
-			
-			if (timeSinceLastFrame >= 50) {
-				if (!isPaused()) {
-					updateObjects();
-				}
+			if (timeSinceLastFrame >= 16) {
+				repaint();
 				lastTime = thisTime;
+			}
+
+			thisTime = System.currentTimeMillis();
+			timeSinceLastUpdate = thisTime - lastUpdate;
+			
+			if (!isPaused()) {
+				if (timeSinceLastUpdate >= updateTime) {
+					updateObjects();
+					lastUpdate = System.currentTimeMillis();
+				}
 			} else {
-				entityManager.updateMarkedEntities();
+					getEntityManager().updateMarkedEntities();
 			}
 		}
 	}
 
+	// ---> Getters and Setters <--- 
+	
 	private boolean isPaused() {
 		return paused;
 	}
@@ -107,13 +137,83 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 		this.paused = paused;
 	}
 
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	private void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	private void setFrameWidth(int frameWidth) {
+		this.frameWidth = frameWidth;
+	}
+
+	public int getFrameWidth() {
+		return frameWidth;
+	}
+
+	private void setFrameHeight(int frameHeight) {
+		this.frameHeight = frameHeight;
+	}
+
+	public int getFrameHeight() {
+		return frameHeight;
+	}
+
+	public int getTileCountX() {
+		return entityCountX;
+	}
+
+	private void setTileCountX(int tileCountX) {
+		this.entityCountX = tileCountX;
+	}
+
+	public int getTileCountY() {
+		return entityCountY;
+	}
+
+	private void setTileCountY(int tileCountY) {
+		this.entityCountY = tileCountY;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	private void setTitle(String title) {
+		this.title = title;
+	}
+
+	public int getUpdateTime() {
+		return updateTime;
+	}
+
+	private void setUpdateTime(int updateTime) {
+		this.updateTime = updateTime;
+	}
+	
+	public Thread getThread() {
+		return thread;
+	}
+
+	public void setThread(Thread thread) {
+		this.thread = thread;
+	}
+	
+	public String getThreadTitle() {
+		return threadTitle;
+	}
+	
+	// ---> Listeners <---
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			setPaused(!isPaused());
 		}
 		if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-			entityManager.reset();
+			getEntityManager().reset();
 		}
 	}
 
@@ -129,8 +229,10 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			entityManager.selectEntity(e.getPoint());
+		if (isPaused()) {
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				getEntityManager().selectEntity(e.getPoint());
+			}
 		}
 	}
 
@@ -151,30 +253,23 @@ public class Frame extends JPanel implements Runnable, KeyListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
 	}
 
 	@Override
-	public void componentHidden(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void componentHidden(ComponentEvent e) {
 	}
 
 	@Override
-	public void componentMoved(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void componentMoved(ComponentEvent e) {
 	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		entityManager.resize(getWidth(), getHeight());
+		getEntityManager().resize(getWidth(), getHeight());
 	}
 
 	@Override
-	public void componentShown(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void componentShown(ComponentEvent e) {
 	}
 
 }

@@ -1,4 +1,4 @@
-package core;
+package entity;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -15,8 +15,7 @@ public class Entity {
 
 	private EntityManager entityManager;
 
-	public Entity(int xPosition, int yPosition, boolean alive,
-			EntityManager entityManager) {
+	public Entity(int xPosition, int yPosition, boolean alive, EntityManager entityManager) {
 		setxPosition(xPosition);
 		setyPosition(yPosition);
 		setAlive(alive);
@@ -83,6 +82,8 @@ public class Entity {
 		}
 	}
 
+	// ---> Getters and Setters <---
+	
 	public int getxPosition() {
 		return this.xPosition;
 	}

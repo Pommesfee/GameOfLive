@@ -1,4 +1,4 @@
-package core;
+package entity;
 
 import java.awt.Graphics;
 import java.awt.Point;
@@ -15,10 +15,11 @@ public class EntityManager {
 	private int entityWidth;
 	private int entityHeight;
 
+	private int seletedEntities;
+	
 	private ArrayList<Entity> entities = new ArrayList<Entity>();
 
-	public EntityManager(int frameWidth, int frameHeight, int entityCountX,
-			int entityCountY) {
+	public EntityManager(int frameWidth, int frameHeight, int entityCountX, int entityCountY) {
 		setFrameWidth(frameWidth);
 		setFrameHeight(frameHeight);
 		setEntityCountX(entityCountX);
@@ -33,7 +34,6 @@ public class EntityManager {
 
 		if ((!(x >= 0 && x <= entityCountX))
 				|| (!(y >= 0 && y <= entityCountY))) {
-			// System.out.println("Entity not found! Coordinates out of bounds");
 			return null;
 		}
 
@@ -60,32 +60,54 @@ public class EntityManager {
 	}
 
 	public void update() {
-
-		for (int i = 0; i < entities.size(); i++) {
-			entities.get(i).update();
+		
+		Entity e;
+		
+		if (seletedEntities >= 1) {
+			for (int i = 0; i < entities.size(); i++) {
+				e = entities.get(i);
+				
+				if (e.isMarked()) {
+					if (e.isAliveNextRound()) {
+						e.setAlive(true);
+					} else {
+						e.setAlive(false);
+					}
+					e.setMarked(false);
+				}
+			}
+			
 		}
+		
 		for (int i = 0; i < entities.size(); i++) {
-			Entity e = entities.get(i);
+			e = entities.get(i);
+		    e.update();
+		}
+		
+		for (int i = 0; i < entities.size(); i++) {
+			e = entities.get(i);
 			if (e.isAliveNextRound()) {
 				e.setAlive(true);
 			} else {
 				e.setAlive(false);
 			}
 		}
+		
+		//TODO New Logic !
+			
 	}
 
 	public void updateMarkedEntities() {
+		Entity e;
 		for (int i = 0; i < entities.size(); i++) {
-			Entity e = entities.get(i);
+			e = entities.get(i);
 			
 			if (e.isMarked()) {	
 				if (!e.isAlive()) {
-					e.setAlive(true);
-					e.setMarked(false);
+					e.setAliveNextRound(true);
 				} else {
-					e.setAlive(false);
-					e.setMarked(false);
-				}
+					e.setAliveNextRound(false);
+				} 
 			}
 		}
 	}
@@ -103,23 +125,33 @@ public class EntityManager {
 			}
 		}
 	}
-
+	
+	public void selectEntity(Point p) {
+		
+		int x = p.x / getEntityWidth();
+		int y = (p.y / getEntityHeight());
+		
+		if (!getEntityAt(x, y).isMarked()) {
+			getEntityAt(x, y).setMarked(true);
+			seletedEntities++;
+		} else {
+			getEntityAt(x, y).setMarked(false);
+			seletedEntities--;
+		}
+	}
+	
 	private void calculateEntitySize() {
 		setEntityWidth(getFrameWidth() / getEntityCountX());
 		setEntityHeight(getFrameHeight() / getEntityCountY());
 	}
-
-	public void selectEntity(Point p) {
-		
-		int x = p.x / getEntityWidth();
-		int y = (p.y / getEntityHeight()) - 1;
-		
-		if (!getEntityAt(x, y).isMarked()) {
-			getEntityAt(x, y).setMarked(true);
-		} else {
-			getEntityAt(x, y).setMarked(false);
-		}
+	
+	public void resize(int width, int height) {
+		setFrameWidth(width);
+		setFrameHeight(height);
+		calculateEntitySize();
 	}
+	
+	// ---> Getters and Setters <---
 	
 	public int getFrameWidth() {
 		return frameWidth;
@@ -169,9 +201,7 @@ public class EntityManager {
 		this.entityHeight = entityHeight;
 	}
 
-	public void resize(int width, int height) {
-		setFrameWidth(width);
-		setFrameHeight(height);
-		calculateEntitySize();
+	public ArrayList<Entity> getEntities() {
+		return entities;
 	}
 }
