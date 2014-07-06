@@ -1,7 +1,9 @@
 package core;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -9,14 +11,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import entity.EntityManager;
 
 @SuppressWarnings("serial")
-public class Frame extends JPanel implements Runnable, KeyListener, MouseListener, ComponentListener {
+public class Frame extends JPanel implements Runnable, KeyListener, MouseListener, ComponentListener, MouseWheelListener {
 
 	private JFrame frame = null;
 	private Thread thread = null;
@@ -40,6 +48,10 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 	private EntityManager entityManager = null;
 	private int entityCountX;
 	private int entityCountY;
+	
+	// Work in progress
+	
+	private boolean infoActive = false;
 
 	public Frame(int width, int height, String title, int tileCountX, int tileCountY, int updateTime) {
 
@@ -56,13 +68,27 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 
 		frame = new JFrame();
 		frame.setTitle(getTitle());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(this, BorderLayout.CENTER);
 		frame.pack();
 		frame.addKeyListener(this);
+		frame.addMouseWheelListener(this);
 		this.addMouseListener(this);
 		frame.addComponentListener(this);
+		WindowListener winListener = new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				int answer = JOptionPane.showConfirmDialog(frame,
+						"Wollen sie das Programm wirklich beenden ?",
+						"Wirklich beenden ?", JOptionPane.YES_NO_OPTION,
+						JOptionPane.INFORMATION_MESSAGE);
+				if (answer == JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
+			}
+		};
+		frame.addWindowListener(winListener);
 		frame.setResizable(true);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -89,6 +115,18 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		drawObjects(g);
+		
+		//TODO
+		if (infoActive) {
+			g.setFont(g.getFont().deriveFont(Font.BOLD,
+					15));
+			g.setColor(Color.GREEN);
+			g.fillRect(5, 5, 175, 35);
+			g.setColor(Color.BLACK);
+			g.drawString("Update Time: " + getUpdateTime() + "(ms)", 10, 20);
+			g.drawString("Running: " + !isPaused(), 10, 35);
+		}
+		
 	}
 
 	private void startGame() {
@@ -215,6 +253,10 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 		if (e.getKeyCode() == KeyEvent.VK_DELETE) {
 			getEntityManager().reset();
 		}
+		if (e.getKeyCode() == KeyEvent.VK_F1) {
+			//TODO
+			infoActive = !infoActive;
+		}
 	}
 
 	@Override
@@ -270,6 +312,14 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 
 	@Override
 	public void componentShown(ComponentEvent e) {
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if (infoActive) {
+			int i = e.getWheelRotation();
+			updateTime += (i*-1);
+		}
 	}
 
 }
