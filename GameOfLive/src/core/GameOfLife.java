@@ -29,7 +29,7 @@ public class GameOfLife {
 				}
 
 				@SuppressWarnings("unused")
-				JPanel frame = new Frame(750, 750, "Game Of Live", 50, 50, 50);
+				JPanel frame = new Frame(750, 750, "Game Of Live", 8, 8, 50);
 			}
 
 		});
