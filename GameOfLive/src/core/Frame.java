@@ -40,6 +40,10 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 	private long lastTime;
 	private long thisTime;
 	private double timeSinceLastFrame;
+	private long fpsLastTime;
+	private long fpsThisTime;
+	private int fps;
+	private int fpsCounter;
 
 	private long lastUpdate;
 	private long timeSinceLastUpdate;
@@ -121,10 +125,11 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 			g.setFont(g.getFont().deriveFont(Font.BOLD,
 					15));
 			g.setColor(Color.GREEN);
-			g.fillRect(5, 5, 175, 35);
+			g.fillRect(5, 5, 175, 50);
 			g.setColor(Color.BLACK);
-			g.drawString("Update Time: " + getUpdateTime() + "(ms)", 10, 20);
-			g.drawString("Running: " + !isPaused(), 10, 35);
+			g.drawString(fps + " FPS", 10, 20);
+			g.drawString("Update Time: " + getUpdateTime() + "(ms)", 10, 35);
+			g.drawString("Running: " + !isPaused(), 10, 50);
 		}
 		
 	}
@@ -140,17 +145,26 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 		setPaused(true);
 		lastTime = System.currentTimeMillis();
 		lastUpdate = System.currentTimeMillis();
+		fpsLastTime = System.currentTimeMillis();
 
 		while (true) {
 
 			thisTime = System.currentTimeMillis();
 			timeSinceLastFrame = (thisTime - lastTime);
 
-			if (timeSinceLastFrame >= 16) {
+			if (true) {
 				repaint();
 				lastTime = thisTime;
+				fpsCounter++;
 			}
 
+			fpsThisTime = System.currentTimeMillis();
+			if (fpsThisTime - fpsLastTime>= 1000) {
+				fps = fpsCounter;
+				fpsCounter = 0;
+				fpsLastTime = System.currentTimeMillis();
+			}
+			
 			thisTime = System.currentTimeMillis();
 			timeSinceLastUpdate = thisTime - lastUpdate;
 			
@@ -290,7 +304,12 @@ public class Frame extends JPanel implements Runnable, KeyListener, MouseListene
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
+		if (isPaused()) {
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				getEntityManager().selectEntity(e.getPoint());
+				//Drag and Drop 
+			}
+		}
 	}
 
 	@Override
